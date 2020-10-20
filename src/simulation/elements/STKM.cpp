@@ -716,23 +716,24 @@ void Element_STKM_init_legs(Simulation * sim, playerst *playerp, int i)
 	playerp->spwn = 0;
 	playerp->fan = false;
 	playerp->rocketBoots = false;
+	playerp->sword = false;
 }
 
 void Element_STKM_set_element(Simulation *sim, playerst *playerp, int element)
 {
 	if (sim->elements[element].Falldown != 0
 	    || sim->elements[element].Properties&TYPE_GAS
-	    || sim->elements[element].Properties&TYPE_LIQUID
+	    || sim->elements[element].Properties&TYPE_SOLID
 	    || sim->elements[element].Properties&TYPE_ENERGY
 	    || element == PT_LOLZ || element == PT_LOVE)
 	{
-		if (!playerp->rocketBoots || element != PT_PLSM)
+		if (!playerp->rocketBoots || element != PT_LIGH)
 		{
 			playerp->elem = element;
 			playerp->fan = false;
 		}
 	}
-	if (element == PT_TESC || element == PT_LIGH)
+	if (element == PT_TESC || element == PT_PLSM)
 	{
 		playerp->elem = PT_LIGH;
 		playerp->fan = false;
