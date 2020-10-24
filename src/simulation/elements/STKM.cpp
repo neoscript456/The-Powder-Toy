@@ -111,8 +111,18 @@ int Element_STKM_run_stickman(playerst *playerp, UPDATE_FUNC_ARGS)
 	float rocketBootsFeetEffect = 0.15f;
 	float rocketBootsHeadEffectV = 0.3f;// stronger acceleration vertically, to counteract gravity
 	float rocketBootsFeetEffectV = 0.45f;
-
-	if (!playerp->fan && parts[i].ctype && sim->IsValidElement(parts[i].ctype))
+int r, rx, ry;
+	int t = parts[i].type;
+	float pp, d;
+	float dt = 0.9;///(FPSB*FPSB);  //Delta time in line
+	float gvx, gvy;
+	float gx, gy, dl, dr;
+	float swordHeadEffect = 0.34f;
+	float swordFeetEffect = 0.14f;
+	float swordHeadEffectV = 0.2f;// able to cut through solids, and kills fighter
+	float swordFeetEffectV = 0.43f;
+	
+	if (!playerp->plex && parts[i].ctype && sim->IsValidElement(parts[i].ctype))
 		Element_STKM_set_element(sim, playerp, parts[i].ctype);
 	playerp->frames++;
 
