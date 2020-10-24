@@ -121,7 +121,6 @@ int r, rx, ry;
 	float swordFeetEffect = 0.14f;
 	float swordHeadEffectV = 0.2f;// able to cut through solids, and kills fighter
 	float swordFeetEffectV = 0.43f;
-	
 	if (!playerp->plex && parts[i].ctype && sim->IsValidElement(parts[i].ctype))
 		Element_STKM_set_element(sim, playerp, parts[i].ctype);
 	playerp->frames++;
@@ -195,6 +194,9 @@ int r, rx, ry;
 	{
 		rocketBootsHeadEffectV = rocketBootsHeadEffect;
 		rocketBootsFeetEffectV = rocketBootsFeetEffect;
+		swordHeadEffectV = swordHeadEffect;
+		swordFeetEffectV = swordFeetEffect;
+		                                               
 	}
 
 	parts[i].vx -= gvx*dt;  //Head up!
@@ -283,6 +285,15 @@ int r, rx, ry;
 			playerp->accs[7] += rocketBootsFeetEffect*rbx;
 			for (int leg=0; leg<2; leg++)
 			{
+				
+		        parts[i].vx -= swordHeadEffect*rby;
+			parts[i].vy += swordHeadEffect*rbx;
+			playerp->accs[2] -= swordFeetEffect*rby;
+			playerp->accs[6] -= swordFeetEffect*rby;
+			playerp->accs[3] += swordFeetEffect*rbx;
+			playerp->accs[7] += swordFeetEffect*rbx;
+			for (int leg=0; leg<2; leg++)
+			{
 				if (leg==1 && (((int)(playerp->comm)&0x02) == 0x02))
 					continue;
 				int footX = playerp->legs[leg*8+4], footY = playerp->legs[leg*8+5];
@@ -332,6 +343,17 @@ int r, rx, ry;
 			playerp->accs[3] -= rocketBootsFeetEffect*rbx;
 			playerp->accs[7] -= rocketBootsFeetEffect*rbx;
 			for (int leg=0; leg<2; leg++)
+			
+			{
+			
+			parts[i].vx += swordHeadEffect*rby;
+			parts[i].vy -= swordHeadEffect*rbx;
+			playerp->accs[2] += swordFeetEffect*rby;
+			playerp->accs[6] += swordFeetEffect*rby;
+			playerp->accs[3] -= swordFeetEffect*rbx;
+			playerp->accs[7] -= swordFeetEffect*rbx;
+			for (int leg=0; leg<2; leg++)
+				
 			{
 				if (leg==0 && (((int)(playerp->comm)&0x01) == 0x01))
 					continue;
@@ -356,20 +378,16 @@ int r, rx, ry;
 		playerp->accs[2] = playerp->accs[6] = 0;
 		playerp->accs[3] = playerp->accs[7] = 0;
 	}
-
-	//Jump
-	if (((int)(playerp->comm)&0x04) == 0x04)
+                
+                if (playerp->sword && ((int)(playerp->comm)&0x03) == 0x03)
 	{
-		if (playerp->rocketBoots)
-		{
-			parts[i].vx -= rocketBootsHeadEffectV*rbx;
-			parts[i].vy -= rocketBootsHeadEffectV*rby;
-			playerp->accs[2] -= rocketBootsFeetEffectV*rbx;
-			playerp->accs[6] -= rocketBootsFeetEffectV*rbx;
-			playerp->accs[3] -= rocketBootsFeetEffectV*rby;
-			playerp->accs[7] -= rocketBootsFeetEffectV*rby;
-			for (int leg=0; leg<2; leg++)
-			{
+		// Pressing left and right simultaneously with sword on creates slashes annd kills fighter
+		// Particularly useful for cutting solids
+		parts[i].vx *= 0.5f;
+		parts[i].vy *= 0.5f;
+		playerp->accs[2] = playerp->accs[6] = 0;
+		playerp->accs[3] = playerp->accs[7] = 0;
+	}
 				int footX = playerp->legs[leg*8+4], footY = playerp->legs[leg*8+5];
 				int np = sim->create_part(-1, footX, footY+1, PT_PLSM);
 				if (np>=0)
@@ -726,6 +744,7 @@ void Element_STKM_init_legs(Simulation * sim, playerst *playerp, int i)
 	playerp->spwn = 0;
 	playerp->fan = false;
 	playerp->rocketBoots = false;
+	playerp->sword = false;
 }
 
 void Element_STKM_set_element(Simulation *sim, playerst *playerp, int element)
@@ -741,6 +760,10 @@ void Element_STKM_set_element(Simulation *sim, playerst *playerp, int element)
 			playerp->elem = element;
 			playerp->fan = false;
 		}
+		if (!playerp->sword || element != PT_LIGH)
+		{
+			playerp->elem = element;
+			playerp->fan = false;
 	}
 	if (element == PT_TESC || element == PT_LIGH)
 	{
